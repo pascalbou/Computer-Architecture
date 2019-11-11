@@ -10,6 +10,8 @@ class CPU:
         self.memory = [0] * 256
         self.register = [0] * 8
         self.pc = 0
+        self.MAR = 0
+        self.MDR = 0
 
 
     def load(self):
@@ -62,6 +64,16 @@ class CPU:
             print(" %02X" % self.reg[i], end='')
 
         print()
+
+    def ram_read(self, address):
+        self.MAR = address
+        self.MDR = self.memory[self.MAR]
+        return self.MDR
+
+    def ram_write(self, address, data):
+        self.MAR = address
+        self.MDR = data
+        self.memory[self.MAR] = self.MDR
 
     def run(self):
         """Run the CPU."""
