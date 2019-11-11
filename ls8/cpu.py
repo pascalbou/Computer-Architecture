@@ -90,7 +90,7 @@ class CPU:
         while self.running:
             command = self.ram[self.pc]
             print(f'self.pc {self.pc}')
-            command_string = bin(command)
+            command_string = format(command, '#010b')
             print(f'command_string {command_string}')
             instruction_bits = command_string[2:4]
             print(f'instruction_bits {instruction_bits}')
