@@ -1,6 +1,6 @@
 """CPU functionality."""
 
-import sys
+import sys, time
 
 class CPU:
     """Main CPU class."""
@@ -12,6 +12,7 @@ class CPU:
         self.pc = 0
         self.MAR = 0
         self.MDR = 0
+        self.running = True
 
 
     def load(self):
@@ -37,12 +38,19 @@ class CPU:
             address += 1
 
 
-    def alu(self, op, reg_a, reg_b):
+    def alu(self, op, reg_a=None, reg_b=None):
         """ALU operations."""
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
+        elif op == 'LDI':
+            self.reg[reg_a] = reg_b
+        elif op == 'PRN':
+            self.reg[reg_a] = reg_a
+            print('printing')
+            print(self.reg[reg_a])
+        elif op == 'HLT':
+            self.running = False
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -78,4 +86,43 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+
+        while self.running:
+            command = self.ram[self.pc]
+            # print(self.pc)
+
+            instruction_bits = str(bin(command))[2:4]
+            # print(str(bin(command)))
+            print(instruction_bits)
+            # print(type(instruction_bits))
+            if instruction_bits == '10':
+                # print('works')
+                operand_a = self.ram_read(self.pc + 1)
+                operand_b = self.ram_read(self.pc + 2)   
+            elif instruction_bits == '01':
+                operand_a = self.ram_read(self.pc + 1)
+                operand_b = None
+            else:
+                operand_a = None
+                operand_b = None
+
+            # print(operand_a)
+            # print(operand_b)
+
+            if str(bin(command)) == '0b10000010':
+                # print('works')
+                op = 'LDI'
+                self.pc += 3
+            elif str(bin(command)) == '0b1000111':
+                op = 'PRN'
+                self.pc += 2
+            elif str(bin(command)) == '0b1':
+                op = 'HLT'
+                self.pc = 0
+
+
+            # print(op)
+            self.alu(op, operand_a, operand_b)
+            time.sleep(1)
+            
+            
