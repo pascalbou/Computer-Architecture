@@ -65,6 +65,13 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+file ls8.py
+imports cpu.py
+loads and runs it
+
+cpu.py
+methods: load, alu, trace
+
 ## Step 1: Add the constructor to `cpu.py`
 
 Add list properties to the `CPU` class to hold 256 bytes of memory and 8
