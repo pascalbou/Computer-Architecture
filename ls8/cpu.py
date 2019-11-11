@@ -47,7 +47,7 @@ class CPU:
             self.reg[reg_a] = reg_b
         elif op == 'PRN':
             self.reg[reg_a] = reg_a
-            print('printing')
+            print('printing PRN')
             print(self.reg[reg_a])
         elif op == 'HLT':
             self.running = False
@@ -89,14 +89,11 @@ class CPU:
 
         while self.running:
             command = self.ram[self.pc]
-            # print(self.pc)
-
-            instruction_bits = str(bin(command))[2:4]
-            # print(str(bin(command)))
-            print(instruction_bits)
-            # print(type(instruction_bits))
+            print(f'self.pc {self.pc}')
+            command_string = bin(command)
+            instruction_bits = command_string[2:4]
+            print(f'instruction_bits {instruction_bits}')
             if instruction_bits == '10':
-                # print('works')
                 operand_a = self.ram_read(self.pc + 1)
                 operand_b = self.ram_read(self.pc + 2)   
             elif instruction_bits == '01':
@@ -106,22 +103,21 @@ class CPU:
                 operand_a = None
                 operand_b = None
 
-            # print(operand_a)
-            # print(operand_b)
+            print(f'operand_a {operand_a}')
+            print(f'operand_b {operand_b}')
 
-            if str(bin(command)) == '0b10000010':
-                # print('works')
+            if command_string == '0b10000010':
                 op = 'LDI'
                 self.pc += 3
-            elif str(bin(command)) == '0b1000111':
+            elif command_string == '0b01000111':
                 op = 'PRN'
                 self.pc += 2
-            elif str(bin(command)) == '0b1':
+            elif command_string == '0b00000001':
                 op = 'HLT'
                 self.pc = 0
 
 
-            # print(op)
+            print(f'op {op}')
             self.alu(op, operand_a, operand_b)
             time.sleep(1)
             
