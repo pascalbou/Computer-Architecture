@@ -13,7 +13,8 @@ class CPU:
         self.MAR = 0
         self.MDR = 0
         self.running = True
-
+        self.branchtable = {}
+        self.branchtable
 
     def load(self):
         """Load a program into memory."""
@@ -59,7 +60,6 @@ class CPU:
         elif op == 'LDI':
             self.reg[reg_a] = reg_b
         elif op == 'PRN':
-            # print(f'self.reg[reg_a] {self.reg[reg_a]}')
             print(self.reg[reg_a])
         elif op == 'HLT':
             self.running = False
@@ -103,11 +103,8 @@ class CPU:
 
         while self.running:
             command = self.ram[self.pc]
-            # print(f'self.pc {self.pc}')
             command_string = format(command, '#010b')
-            # print(f'command_string {command_string}')
             instruction_bits = command_string[2:4]
-            # print(f'instruction_bits {instruction_bits}')
 
             if instruction_bits == '10':
                 operand_a = self.ram_read(self.pc + 1)
@@ -119,25 +116,25 @@ class CPU:
                 operand_a = None
                 operand_b = None
 
-            # print(f'operand_a {operand_a}')
-            # print(f'operand_b {operand_b}')
+            branch_table = {
+                '0b10000010': 'LDI',
+                '0b01000111': 'PRN',
+                '0b00000001': 'HLT',
+                '0b10100010': 'MUL'
+            }
 
-            if command_string == '0b10000010':
-                op = 'LDI'
-                instruction_size = 3
-            elif command_string == '0b01000111':
-                op = 'PRN'
-                instruction_size = 2
-            elif command_string == '0b00000001':
-                op = 'HLT'
-            elif command_string == '0b10100010':
-                op = 'MUL'
+            instrution_size_table = {
+                'LDI': 3,
+                'PRN': 2,
+                'HLT': 0,
+                'MUL': 3,
+            }
 
+            op = branch_table[command_string]
+            instruction_size = instrution_size_table[op]
 
-            # print(f'op {op}')
             self.alu(op, operand_a, operand_b)
             self.pc += instruction_size
-            # time.sleep(1)
 
             
             
