@@ -84,6 +84,8 @@ class CPU:
             print(self.reg[reg_a])
         elif op == 'HLT':
             self.running = False
+        elif op == 'MUL':
+            self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -149,6 +151,8 @@ class CPU:
                 instruction_size = 2
             elif command_string == '0b00000001':
                 op = 'HLT'
+            elif command_string == '0b10100010':
+                op = 'MUL'
 
 
             # print(f'op {op}')
