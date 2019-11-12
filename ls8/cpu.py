@@ -7,14 +7,12 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        self.ram = [0] * 256
-        self.reg = [0] * 8
-        self.pc = 0
-        self.MAR = 0
-        self.MDR = 0
-        self.running = True
-        self.branchtable = {}
-        self.branchtable
+        self.ram = [0] * 256 # random access memory
+        self.reg = [0] * 8 # registers
+        self.pc = 0 # program counter
+        self.MAR = 0 # Memory Address Register (optional)
+        self.MDR = 0 # Memory Data Register (optional)
+        self.running = True # is the program running?
 
     def load(self):
         """Load a program into memory."""
@@ -102,21 +100,21 @@ class CPU:
         """Run the CPU."""
 
         while self.running:
+            # get command saved in ram
             command = self.ram[self.pc]
+            # string binary command
             command_string = format(command, '#010b')
+            # get the first two bits, the instruction_bits
             instruction_bits = command_string[2:4]
 
+            # saved one or two operands
             if instruction_bits == '10':
                 operand_a = self.ram_read(self.pc + 1)
                 operand_b = self.ram_read(self.pc + 2)   
             elif instruction_bits == '01':
-                operand_a = self.ram_read(self.pc + 1)
-                operand_b = None
-            else:
-                operand_a = None
-                operand_b = None
+                operand_a = self.ram_read(self.pc + 1)  
 
-            branch_table = {
+            op_table = {
                 '0b10000010': 'LDI',
                 '0b01000111': 'PRN',
                 '0b00000001': 'HLT',
@@ -130,10 +128,14 @@ class CPU:
                 'MUL': 3,
             }
 
-            op = branch_table[command_string]
+            # get name of operation
+            op = op_table[command_string]
+            # get size of operation instrutions
             instruction_size = instrution_size_table[op]
 
+            # execute ALU method
             self.alu(op, operand_a, operand_b)
+            # move to next operation
             self.pc += instruction_size
 
             
