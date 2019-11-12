@@ -47,8 +47,7 @@ class CPU:
 
         except FileNotFoundError:
             print(f"{sys.argv[0]}: {sys.argv[1]} not found")
-            sys.exit(2)        
-
+            sys.exit(2)
 
     def alu(self, op, reg_a=None, reg_b=None):
         """ALU operations."""
