@@ -76,7 +76,6 @@ class CPU:
         elif op == 'POP':
             self.reg[reg_a] = self.ram[self.reg[7]]
             self.reg[7] += 1 # stack pointer
-            return self.reg[reg_a]                               
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -129,6 +128,7 @@ class CPU:
                 operand_a = self.ram_read(self.pc + 1)  
 
             op_table = {
+                '0b10100000': 'ADD',
                 '0b10000010': 'LDI',
                 '0b01000111': 'PRN',
                 '0b00000001': 'HLT',
@@ -140,6 +140,7 @@ class CPU:
             }
 
             instrution_size_table = {
+                'ADD': 3,
                 'LDI': 3,
                 'PRN': 2,
                 'HLT': 0,
@@ -156,18 +157,16 @@ class CPU:
             self.ir = op_table[command_string]
             # get size of operation instrutions
             instruction_size = instrution_size_table[self.ir]
-            print(self.ir)
 
             # if it is an instruction that sets the pc
             if self.ir in instructions_that_set_pc:
                 if self.ir == 'CALL':
-                    self.reg[1] = self.pc + 2
-                    # print(format(self.reg[1], '#010b'))
-                    print(self.reg[1])
-                    self.alu('PUSH', 1)
+                    self.reg[2] = self.pc + 2
+                    self.alu('PUSH', 2)
                     self.pc = self.reg[operand_a]
                 elif self.ir == 'RET':
-                    self.pc = self.alu('POP')
+                    self.alu('POP', 2)
+                    self.pc = self.reg[2]
             else:
                 # move to next operation
                 self.pc += instruction_size
