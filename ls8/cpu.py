@@ -9,11 +9,16 @@ class CPU:
         """Construct a new CPU."""
         self.ram = [0] * 256 # random access memory
         self.reg = [0] * 8 # registers
-        self.pc = 0 # program counter
-        self.MAR = 0 # Memory Address Register (optional)
-        self.MDR = 0 # Memory Data Register (optional)
-        self.running = True # is the program running?
         self.reg[7] = 0xF4 # Stack Pointer
+
+        # internal registers
+        self.pc = 0 # program counter
+        self.ir = '' # Instruction Register
+        self.mar = 0 # Memory Address Register
+        self.mdr = 0 # Memory Data Register
+
+        self.running = True # is the program running?
+        
 
     def load(self):
         """Load a program into memory."""
@@ -93,14 +98,14 @@ class CPU:
         print()
 
     def ram_read(self, address):
-        self.MAR = address
-        self.MDR = self.ram[self.MAR]
-        return self.MDR
+        self.mar = address
+        self.mdr = self.ram[self.mar]
+        return self.mdr
 
     def ram_write(self, address, data):
-        self.MAR = address
-        self.MDR = data
-        self.ram[self.MAR] = self.MDR
+        self.mar = address
+        self.mdr = data
+        self.ram[self.mar] = self.mdr
 
     def run(self):
         """Run the CPU."""
@@ -139,12 +144,12 @@ class CPU:
             }
 
             # get name of operation
-            op = op_table[command_string]
+            self.ir = op_table[command_string]
             # get size of operation instrutions
-            instruction_size = instrution_size_table[op]
+            instruction_size = instrution_size_table[self.ir]
 
             # execute ALU method
-            self.alu(op, operand_a, operand_b)
+            self.alu(self.ir, operand_a, operand_b)
             # move to next operation
             self.pc += instruction_size
 
