@@ -168,8 +168,9 @@ class CPU:
                 elif self.ir == 'RET':
                     self.alu('POP', 7)
                     self.pc = self.reg[7]
-                # elif self.ir == 'JMP':
-                #     self.alu('JMP', operand_a)
+                elif self.ir == 'JMP':
+                    # self.alu('JMP', operand_a)
+                    self.pc = self.reg[operand_a]
             else:
                 # move to next operation
                 self.pc += instruction_size
