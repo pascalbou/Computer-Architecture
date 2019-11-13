@@ -16,6 +16,7 @@ class CPU:
         self.ir = '' # Instruction Register
         self.mar = 0 # Memory Address Register
         self.mdr = 0 # Memory Data Register
+        self.fl = 0b000 # flag
 
         self.running = True # is the program running?
         
@@ -76,6 +77,13 @@ class CPU:
         elif op == 'POP':
             self.reg[reg_a] = self.ram[self.reg[7]]
             self.reg[7] += 1 # stack pointer
+        elif op == 'CMP':
+            if self.reg[reg_a] == self.reg[reg_b]:
+                self.fl = 0b001
+            elif self.reg[reg_a] > self.reg[reg_b]:
+                self.fl = 0b010
+            elif self.reg[reg_a] < self.reg[reg_b]:
+                self.fl = 0b100                                
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -136,7 +144,11 @@ class CPU:
                 '0b01000101': 'PUSH',
                 '0b01000110': 'POP',
                 '0b01010000': 'CALL',
-                '0b00010001': 'RET'
+                '0b00010001': 'RET',
+                '0b10100111': 'CMP',
+                '0b01010100': 'JMP',
+                '0b01010101': 'JEQ',
+                '0b01010110': 'JNE',
             }
 
             instrution_size_table = {
@@ -149,15 +161,22 @@ class CPU:
                 'POP': 2,
                 'CALL': 2,
                 'RET': 0,
-                'JMP': 0,
+                'JMP': 2,
+                'CMP': 3,
+                'JEQ': 2,
+                'JNE': 2,
             }
 
-            instructions_that_set_pc = ['CALL', 'RET', 'JMP']
+            instructions_that_set_pc = ['CALL', 'RET', 'JMP', 'JEQ', 'JNE']
 
             # get name of operation
             self.ir = op_table[command_string]
             # get size of operation instrutions
             instruction_size = instrution_size_table[self.ir]
+            # print(self.ir)
+            # print(operand_a)
+            # print(operand_b)
+            # print(self.fl)
 
             # if it is an instruction that sets the pc
             if self.ir in instructions_that_set_pc:
@@ -168,7 +187,18 @@ class CPU:
                 elif self.ir == 'RET':
                     self.alu('POP', 7)
                     self.pc = self.reg[7]
-                elif self.ir == 'JMP':
+                elif self.ir == 'JEQ':
+                    if self.fl == 0b001:
+                        self.ir = 'JMP'
+                    else:
+                        self.pc += instruction_size
+                elif self.ir == 'JNE':
+                    if self.fl == 0b000:
+                        self.ir = 'JMP'
+                    else:
+                        self.pc += instruction_size
+                
+                if self.ir == 'JMP':
                     # self.alu('JMP', operand_a)
                     self.pc = self.reg[operand_a]
             else:
@@ -177,4 +207,4 @@ class CPU:
                 # execute ALU method
                 self.alu(self.ir, operand_a, operand_b)
 
-            
+            # time.sleep(1)
