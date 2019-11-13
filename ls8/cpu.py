@@ -72,18 +72,18 @@ class CPU:
         elif op == 'PUSH':
             self.reg[7] -= 1 # stack pointer
             self.ram[self.reg[7]] = self.reg[reg_a]
-            # print('test')
-            # print(self.reg[reg_a])
         elif op == 'POP':
             self.reg[reg_a] = self.ram[self.reg[7]]
             self.reg[7] += 1 # stack pointer
         elif op == 'CMP':
             if self.reg[reg_a] == self.reg[reg_b]:
                 self.fl = 0b001
-            elif self.reg[reg_a] > self.reg[reg_b]:
-                self.fl = 0b010
-            elif self.reg[reg_a] < self.reg[reg_b]:
-                self.fl = 0b100                                
+            # elif self.reg[reg_a] > self.reg[reg_b]:
+            #     self.fl = 0b010
+            # elif self.reg[reg_a] < self.reg[reg_b]:
+            #     self.fl = 0b100
+            else:
+                self.fl = 0b000                                    
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -173,10 +173,6 @@ class CPU:
             self.ir = op_table[command_string]
             # get size of operation instrutions
             instruction_size = instrution_size_table[self.ir]
-            # print(self.ir)
-            # print(operand_a)
-            # print(operand_b)
-            # print(self.fl)
 
             # if it is an instruction that sets the pc
             if self.ir in instructions_that_set_pc:
@@ -199,7 +195,6 @@ class CPU:
                         self.pc += instruction_size
                 
                 if self.ir == 'JMP':
-                    # self.alu('JMP', operand_a)
                     self.pc = self.reg[operand_a]
             else:
                 # move to next operation
@@ -207,4 +202,10 @@ class CPU:
                 # execute ALU method
                 self.alu(self.ir, operand_a, operand_b)
 
+            # == Debugging ==
             # time.sleep(1)
+            # print(self.ir)
+            # print(operand_a)
+            # print(operand_b)
+            # print(self.reg)
+            # print(self.fl)
