@@ -149,9 +149,10 @@ class CPU:
                 'POP': 2,
                 'CALL': 2,
                 'RET': 0,
+                'JMP': 0,
             }
 
-            instructions_that_set_pc = ['CALL', 'RET']
+            instructions_that_set_pc = ['CALL', 'RET', 'JMP']
 
             # get name of operation
             self.ir = op_table[command_string]
@@ -161,12 +162,14 @@ class CPU:
             # if it is an instruction that sets the pc
             if self.ir in instructions_that_set_pc:
                 if self.ir == 'CALL':
-                    self.reg[2] = self.pc + 2
-                    self.alu('PUSH', 2)
+                    self.reg[7] = self.pc + 2
+                    self.alu('PUSH', 7)
                     self.pc = self.reg[operand_a]
                 elif self.ir == 'RET':
-                    self.alu('POP', 2)
-                    self.pc = self.reg[2]
+                    self.alu('POP', 7)
+                    self.pc = self.reg[7]
+                # elif self.ir == 'JMP':
+                #     self.alu('JMP', operand_a)
             else:
                 # move to next operation
                 self.pc += instruction_size
