@@ -71,9 +71,12 @@ class CPU:
         elif op == 'PUSH':
             self.reg[7] -= 1
             self.ram[self.reg[7]] = self.reg[reg_a]
+            # print('test')
+            # print(self.reg[reg_a])
         elif op == 'POP':
             self.reg[reg_a] = self.ram[self.reg[7]]
-            self.reg[7] += 1                                   
+            self.reg[7] += 1
+            return self.reg[reg_a]                               
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -132,6 +135,8 @@ class CPU:
                 '0b10100010': 'MUL',
                 '0b01000101': 'PUSH',
                 '0b01000110': 'POP',
+                '0b01010000': 'CALL',
+                '0b00010001': 'RET'
             }
 
             instrution_size_table = {
@@ -141,17 +146,32 @@ class CPU:
                 'MUL': 3,
                 'PUSH': 2,
                 'POP': 2,
+                'CALL': 2,
+                'RET': 0,
             }
+
+            instructions_that_set_pc = ['CALL', 'RET']
 
             # get name of operation
             self.ir = op_table[command_string]
             # get size of operation instrutions
             instruction_size = instrution_size_table[self.ir]
+            print(self.ir)
 
-            # execute ALU method
-            self.alu(self.ir, operand_a, operand_b)
-            # move to next operation
-            self.pc += instruction_size
+            # if it is an instruction that sets the pc
+            if self.ir in instructions_that_set_pc:
+                if self.ir == 'CALL':
+                    self.reg[1] = self.pc + 2
+                    # print(format(self.reg[1], '#010b'))
+                    print(self.reg[1])
+                    self.alu('PUSH', self.reg[1])
+                    self.pc = self.reg[operand_a]
+                elif self.ir == 'RET':
+                    self.pc = self.alu('POP')
+            else:
+                # move to next operation
+                self.pc += instruction_size
+                # execute ALU method
+                self.alu(self.ir, operand_a, operand_b)
 
-            
             
