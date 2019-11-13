@@ -69,13 +69,13 @@ class CPU:
         elif op == 'MUL':
             self.reg[reg_a] *= self.reg[reg_b]
         elif op == 'PUSH':
-            self.reg[7] -= 1
+            self.reg[7] -= 1 # stack pointer
             self.ram[self.reg[7]] = self.reg[reg_a]
             # print('test')
             # print(self.reg[reg_a])
         elif op == 'POP':
             self.reg[reg_a] = self.ram[self.reg[7]]
-            self.reg[7] += 1
+            self.reg[7] += 1 # stack pointer
             return self.reg[reg_a]                               
         else:
             raise Exception("Unsupported ALU operation")
@@ -164,7 +164,7 @@ class CPU:
                     self.reg[1] = self.pc + 2
                     # print(format(self.reg[1], '#010b'))
                     print(self.reg[1])
-                    self.alu('PUSH', self.reg[1])
+                    self.alu('PUSH', 1)
                     self.pc = self.reg[operand_a]
                 elif self.ir == 'RET':
                     self.pc = self.alu('POP')
