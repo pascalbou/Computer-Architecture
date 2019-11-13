@@ -13,6 +13,7 @@ class CPU:
         self.MAR = 0 # Memory Address Register (optional)
         self.MDR = 0 # Memory Data Register (optional)
         self.running = True # is the program running?
+        self.reg[7] = 0xF4 # Stack Pointer
 
     def load(self):
         """Load a program into memory."""
@@ -62,6 +63,12 @@ class CPU:
             self.running = False
         elif op == 'MUL':
             self.reg[reg_a] *= self.reg[reg_b]
+        elif op == 'PUSH':
+            self.reg[7] -= 1
+            self.ram[self.reg[7]] = self.reg[reg_a]
+        elif op == 'POP':
+            self.reg[reg_a] = self.ram[self.reg[7]]
+            self.reg[7] += 1                                   
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -117,7 +124,9 @@ class CPU:
                 '0b10000010': 'LDI',
                 '0b01000111': 'PRN',
                 '0b00000001': 'HLT',
-                '0b10100010': 'MUL'
+                '0b10100010': 'MUL',
+                '0b01000101': 'PUSH',
+                '0b01000110': 'POP',
             }
 
             instrution_size_table = {
@@ -125,6 +134,8 @@ class CPU:
                 'PRN': 2,
                 'HLT': 0,
                 'MUL': 3,
+                'PUSH': 2,
+                'POP': 2,
             }
 
             # get name of operation
