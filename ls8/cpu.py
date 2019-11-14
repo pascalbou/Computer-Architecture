@@ -227,14 +227,26 @@ class CPU:
                     else:
                         self.pc += instruction_size
                 elif self.ir == 'XOR':
-                    # XOR = OR AND NAND
+                    # XOR = ((OR) AND (NAND))
                     operand_c = operand_a + 2
                     self.reg[operand_c] = self.reg[operand_a]
                     self.alu('OR', operand_a, operand_b)
                     self.alu('AND', operand_c, operand_b)
                     self.alu('NOT', operand_c,)
-                    self.alu('AND', operand_a, operand_c)   
-                
+                    self.alu('AND', operand_a, operand_c)
+                # elif self.ir == 'NAND':
+                #     # NAND = NOT(AND)
+                #     self.alu('AND', operand_a, operand_b)
+                #     self.alu('NOT', operand_a)   
+                # elif self.ir == 'NOR':
+                #     # NOR = ((XOR) XOR (NAND))  
+                #     operand_c = operand_a + 2
+                #     self.reg[operand_c] = self.reg[operand_a]
+                #     self.alu('XOR', operand_a, operand_b)
+                #     self.alu('AND', operand_c, operand_b)
+                #     self.alu('NOT', operand_c,)
+                #     self.alu('XOR', operand_a, operand_c)                    
+    
                 if self.ir == 'JMP':
                     self.pc = self.reg[operand_a]
             else:
