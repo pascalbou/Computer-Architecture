@@ -100,7 +100,7 @@ class CPU:
             if self.reg[reg_b] == 0:
                 raise Exception("Cannot divide by 0")
             else:
-                self.reg[reg_a] = self.reg[reg_a] % self.reg[reg_b]           
+                self.reg[reg_a] = self.reg[reg_a] % self.reg[reg_b] 
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -173,7 +173,7 @@ class CPU:
                 '0b10101100': 'SHL',
                 '0b10101101': 'SHR',
                 '0b10100100': 'MOD',
-
+                '0b10101011': 'XOR',
             }
 
             instrution_size_table = {
@@ -197,6 +197,7 @@ class CPU:
                 'SHL': 3,
                 'SHR': 3,
                 'MOD': 3,
+                'XOR': 3,
             }
 
             instructions_that_set_pc = ['CALL', 'RET', 'JMP', 'JEQ', 'JNE']
@@ -225,6 +226,14 @@ class CPU:
                         self.ir = 'JMP'
                     else:
                         self.pc += instruction_size
+                elif self.ir == 'XOR':
+                    # XOR = OR AND NAND
+                    operand_c = operand_a + 2
+                    self.reg[operand_c] = self.reg[operand_a]
+                    self.alu('OR', operand_a, operand_b)
+                    self.alu('AND', operand_c, operand_b)
+                    self.alu('NOT', operand_c,)
+                    self.alu('AND', operand_a, operand_c)   
                 
                 if self.ir == 'JMP':
                     self.pc = self.reg[operand_a]
