@@ -89,7 +89,18 @@ class CPU:
         elif op == 'AND':
             self.reg[reg_a] = self.reg[reg_a] & self.reg[reg_b]
         elif op == 'OR':
-            self.reg[reg_a] = self.reg[reg_a] | self.reg[reg_b]                                             
+            self.reg[reg_a] = self.reg[reg_a] | self.reg[reg_b]
+        elif op == 'NOT':
+            self.reg[reg_a] = ~(self.reg[reg_a])
+        elif op == 'SHL':
+            self.reg[reg_a] = self.reg[reg_a] << self.reg[reg_b]
+        elif op == 'SHR':
+            self.reg[reg_a] = self.reg[reg_a] >> self.reg[reg_b]
+        elif op == 'MOD':
+            if self.reg[reg_b] == 0:
+                raise Exception("Cannot divide by 0")
+            else:
+                self.reg[reg_a] = self.reg[reg_a] % self.reg[reg_b]           
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -158,6 +169,10 @@ class CPU:
                 '0b10100001': 'ADDI', # coded invented, not in doc
                 '0b10101000': 'AND',
                 '0b10101010': 'OR',
+                '0b01101001': 'NOT',
+                '0b10101100': 'SHL',
+                '0b10101101': 'SHR',
+                '0b10100100': 'MOD',
 
             }
 
@@ -178,6 +193,10 @@ class CPU:
                 'ADDI': 2,
                 'AND': 3,
                 'OR': 3,
+                'NOT': 2,
+                'SHL': 3,
+                'SHR': 3,
+                'MOD': 3,
             }
 
             instructions_that_set_pc = ['CALL', 'RET', 'JMP', 'JEQ', 'JNE']
