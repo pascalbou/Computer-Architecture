@@ -83,7 +83,9 @@ class CPU:
             # elif self.reg[reg_a] < self.reg[reg_b]:
             #     self.fl = 0b100
             else:
-                self.fl = 0b000                                    
+                self.fl = 0b000
+        elif op == 'ADDI':
+            self.reg[reg_a] += reg_b                                    
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -149,6 +151,7 @@ class CPU:
                 '0b01010100': 'JMP',
                 '0b01010101': 'JEQ',
                 '0b01010110': 'JNE',
+                '0b10100001': 'ADDI',
             }
 
             instrution_size_table = {
@@ -165,6 +168,7 @@ class CPU:
                 'CMP': 3,
                 'JEQ': 2,
                 'JNE': 2,
+                'ADDI': 2,
             }
 
             instructions_that_set_pc = ['CALL', 'RET', 'JMP', 'JEQ', 'JNE']
