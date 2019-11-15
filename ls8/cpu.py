@@ -100,7 +100,9 @@ class CPU:
             if self.reg[reg_b] == 0:
                 raise Exception("Cannot divide by 0")
             else:
-                self.reg[reg_a] = self.reg[reg_a] % self.reg[reg_b] 
+                self.reg[reg_a] = self.reg[reg_a] % self.reg[reg_b]
+        elif op == 'ST':
+            self.reg[reg_a] = self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -174,6 +176,7 @@ class CPU:
                 '0b10101101': 'SHR',
                 '0b10100100': 'MOD',
                 '0b10101011': 'XOR',
+                '0b10000100': 'ST',
             }
 
             instrution_size_table = {
@@ -198,9 +201,10 @@ class CPU:
                 'SHR': 3,
                 'MOD': 3,
                 'XOR': 3,
+                'ST': 3,
             }
 
-            instructions_that_set_pc = ['CALL', 'RET', 'JMP', 'JEQ', 'JNE']
+            instructions_that_set_pc = ['CALL', 'RET', 'JMP', 'JEQ', 'JNE', 'XOR']
 
             # get name of operation
             self.ir = op_table[command_string]
@@ -234,6 +238,7 @@ class CPU:
                     self.alu('AND', operand_c, operand_b)
                     self.alu('NOT', operand_c,)
                     self.alu('AND', operand_a, operand_c)
+                # extras ALU gates
                 # elif self.ir == 'NAND':
                 #     # NAND = NOT(AND)
                 #     self.alu('AND', operand_a, operand_b)
