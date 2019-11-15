@@ -2,6 +2,11 @@
 
 import sys, time
 
+# global variables
+IM = 5 # interrupt mask
+IS = 6 # interrupt status
+SP = 7 # stack pointer
+
 class CPU:
     """Main CPU class."""
 
@@ -9,7 +14,7 @@ class CPU:
         """Construct a new CPU."""
         self.ram = [0] * 256 # random access memory
         self.reg = [0] * 8 # registers
-        self.reg[7] = 0xF4 # Stack Pointer
+        self.reg[SP] = 0xF4 # Stack Pointer
 
         # internal registers
         self.pc = 0 # program counter
@@ -70,11 +75,11 @@ class CPU:
         elif op == 'MUL':
             self.reg[reg_a] *= self.reg[reg_b]
         elif op == 'PUSH':
-            self.reg[7] -= 1 # stack pointer
-            self.ram[self.reg[7]] = self.reg[reg_a]
+            self.reg[SP] -= 1 # stack pointer
+            self.ram[self.reg[SP]] = self.reg[reg_a]
         elif op == 'POP':
-            self.reg[reg_a] = self.ram[self.reg[7]]
-            self.reg[7] += 1 # stack pointer
+            self.reg[reg_a] = self.ram[self.reg[SP]]
+            self.reg[SP] += 1 # stack pointer
         elif op == 'CMP':
             if self.reg[reg_a] == self.reg[reg_b]:
                 self.fl = 0b001
@@ -214,12 +219,12 @@ class CPU:
             # if it is an instruction that sets the pc
             if self.ir in instructions_that_set_pc:
                 if self.ir == 'CALL':
-                    self.reg[7] = self.pc + 2
+                    self.reg[SP] = self.pc + 2
                     self.alu('PUSH', 7)
                     self.pc = self.reg[operand_a]
                 elif self.ir == 'RET':
                     self.alu('POP', 7)
-                    self.pc = self.reg[7]
+                    self.pc = self.reg[SP]
                 elif self.ir == 'JEQ':
                     if self.fl == 0b001:
                         self.ir = 'JMP'
