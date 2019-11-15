@@ -70,13 +70,38 @@ class CPU:
 
         # internal registers
         self.pc = 0  # program counter
-        self.ir = ''  # Instruction Register
-        self.mar = 0  # Memory Address Register
-        self.mdr = 0  # Memory Data Register
+        self.ir = 0  # instruction register
+        self.mar = 0  # memory address register
+        self.mdr = 0  # memory data register
         self.fl = 0b000  # flag
 
         self.running = True  # is the program running?
         self.branch_table = {}
+        self.branch_table[CALL] = self.handle_CALL
+        self.branch_table[RET] = self.handle_RET
+        self.branch_table[JEQ] = self.handle_JEQ
+        self.branch_table[JNE] = self.handle_JNE
+
+    def handle_CALL(self, operand_a):
+        self.reg[SP] = self.pc + 2
+        self.alu(PUSH, 7)
+        self.pc = self.reg[operand_a]
+
+    def handle_RET(self):
+        self.alu(POP, 7)
+        self.pc = self.reg[SP]
+
+    def handle_JEQ(self, instruction_size):
+        if self.fl == 0b001:
+            self.ir = JMP
+        else:
+            self.pc += instruction_size
+
+    def handle_JNE(self, instruction_size):
+        if self.fl == 0b000:
+            self.ir = JMP
+        else:
+            self.pc += instruction_size
 
     def load(self):
         """Load a program into memory."""
@@ -127,14 +152,15 @@ class CPU:
         elif op == MUL:
             self.reg[reg_a] *= self.reg[reg_b]
         elif op == PUSH:
-            self.reg[SP] -= 1  # stack pointer
+            self.reg[SP] -= 1
             self.ram[self.reg[SP]] = self.reg[reg_a]
         elif op == POP:
             self.reg[reg_a] = self.ram[self.reg[SP]]
-            self.reg[SP] += 1  # stack pointer
+            self.reg[SP] += 1
         elif op == CMP:
             if self.reg[reg_a] == self.reg[reg_b]:
                 self.fl = 0b001
+            ##flags for less than and greater than
             # elif self.reg[reg_a] > self.reg[reg_b]:
             #     self.fl = 0b010
             # elif self.reg[reg_a] < self.reg[reg_b]:
@@ -219,22 +245,13 @@ class CPU:
             # if it is an instruction that sets the pc
             if self.ir in instructions_that_set_pc:
                 if self.ir == CALL:
-                    self.reg[SP] = self.pc + 2
-                    self.alu(PUSH, 7)
-                    self.pc = self.reg[operand_a]
+                    self.branch_table[self.ir](operand_a)
                 elif self.ir == RET:
-                    self.alu(POP, 7)
-                    self.pc = self.reg[SP]
+                    self.branch_table[self.ir]
                 elif self.ir == JEQ:
-                    if self.fl == 0b001:
-                        self.ir = JMP
-                    else:
-                        self.pc += instruction_size
+                    self.branch_table[self.ir](instruction_size)
                 elif self.ir == JNE:
-                    if self.fl == 0b000:
-                        self.ir = JMP
-                    else:
-                        self.pc += instruction_size
+                    self.branch_table[self.ir](instruction_size)
                 elif self.ir == XOR:
                     # XOR = ((OR) AND (NAND))
                     operand_c = operand_a + 2
