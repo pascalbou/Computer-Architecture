@@ -81,27 +81,54 @@ class CPU:
         self.branch_table[RET] = self.handle_RET
         self.branch_table[JEQ] = self.handle_JEQ
         self.branch_table[JNE] = self.handle_JNE
+        self.branch_table[JMP] = self.handle_JMP
+        self.branch_table[XOR] = self.handle_XOR
 
-    def handle_CALL(self, operand_a):
+    def handle_CALL(self, operand_a=None, operand_b=None, instruction_size=None):
         self.reg[SP] = self.pc + 2
         self.alu(PUSH, 7)
         self.pc = self.reg[operand_a]
 
-    def handle_RET(self):
+    def handle_RET(self, operand_a=None, operand_b=None, instruction_size=None):
         self.alu(POP, 7)
         self.pc = self.reg[SP]
 
-    def handle_JEQ(self, instruction_size):
+    def handle_JEQ(self, operand_a=None, operand_b=None, instruction_size=None):
         if self.fl == 0b001:
             self.ir = JMP
         else:
             self.pc += instruction_size
 
-    def handle_JNE(self, instruction_size):
+    def handle_JNE(self, operand_a=None, operand_b=None, instruction_size=None):
         if self.fl == 0b000:
             self.ir = JMP
         else:
             self.pc += instruction_size
+
+    def handle_JMP(self, operand_a=None, operand_b=None, instruction_size=None):
+        self.pc = self.reg[operand_a]
+
+    def handle_XOR(self, operand_a=None, operand_b=None, instruction_size=None):
+        # XOR = ((OR) AND (NAND))
+        operand_c = operand_a + 2
+        self.reg[operand_c] = self.reg[operand_a]
+        self.alu(OR, operand_a, operand_b)
+        self.alu(AND, operand_c, operand_b)
+        self.alu(NOT, operand_c,)
+        self.alu(AND, operand_a, operand_c)
+        # # extras ALU gates
+        # # elif self.ir == NAND:
+        # #     # NAND = NOT(AND)
+        # #     self.alu(AND, operand_a, operand_b)
+        # #     self.alu(NOT, operand_a)
+        # # elif self.ir == NOR:
+        # #     # NOR = ((XOR) XOR (NAND))
+        # #     operand_c = operand_a + 2
+        # #     self.reg[operand_c] = self.reg[operand_a]
+        # #     self.alu(XOR, operand_a, operand_b)
+        # #     self.alu(AND, operand_c, operand_b)
+        # #     self.alu(NOT, operand_c,)
+        # #     self.alu(XOR, operand_a, operand_c)  
 
     def load(self):
         """Load a program into memory."""
@@ -236,46 +263,18 @@ class CPU:
             elif instruction_bits == '01':
                 operand_a = self.ram_read(self.pc + 1)
 
-            instructions_that_set_pc = [
-                CALL, RET, JMP, JEQ, JNE, XOR]
-
             # get size of operation instrutions
             instruction_size = instrution_size_table[self.ir]
 
+            instructions_that_set_pc = [
+                CALL, RET, JMP, JEQ, JNE, XOR]
+
             # if it is an instruction that sets the pc
             if self.ir in instructions_that_set_pc:
-                if self.ir == CALL:
-                    self.branch_table[self.ir](operand_a)
-                elif self.ir == RET:
-                    self.branch_table[self.ir]
-                elif self.ir == JEQ:
-                    self.branch_table[self.ir](instruction_size)
-                elif self.ir == JNE:
-                    self.branch_table[self.ir](instruction_size)
-                elif self.ir == XOR:
-                    # XOR = ((OR) AND (NAND))
-                    operand_c = operand_a + 2
-                    self.reg[operand_c] = self.reg[operand_a]
-                    self.alu(OR, operand_a, operand_b)
-                    self.alu(AND, operand_c, operand_b)
-                    self.alu(NOT, operand_c,)
-                    self.alu(AND, operand_a, operand_c)
-                # extras ALU gates
-                # elif self.ir == NAND:
-                #     # NAND = NOT(AND)
-                #     self.alu(AND, operand_a, operand_b)
-                #     self.alu(NOT, operand_a)
-                # elif self.ir == NOR:
-                #     # NOR = ((XOR) XOR (NAND))
-                #     operand_c = operand_a + 2
-                #     self.reg[operand_c] = self.reg[operand_a]
-                #     self.alu(XOR, operand_a, operand_b)
-                #     self.alu(AND, operand_c, operand_b)
-                #     self.alu(NOT, operand_c,)
-                #     self.alu(XOR, operand_a, operand_c)
+                self.branch_table[self.ir](operand_a, operand_b, instruction_size)
 
                 if self.ir == JMP:
-                    self.pc = self.reg[operand_a]
+                    self.branch_table[self.ir](operand_a, instruction_size)                  
             else:
                 # move to next operation
                 self.pc += instruction_size
